@@ -1,0 +1,1 @@
+{"expo":{"name":"Oficina Técnico","slug":"oficina-tecnico","version":"1.0.0","orientation":"portrait","userInterfaceStyle":"light","ios":{"supportsTablet":true},"android":{"package":"com.oficina.tecnico"},"plugins":["expo-secure-store"]}}

@@ -1,0 +1,63 @@
+generator client {
+ provider = "prisma-client-js"
+}
+datasource db {
+ provider = "mysql"
+ url = env("DATABASE_URL")
+}
+enum Role {
+ MANAGER
+ TECHNICIAN
+}
+enum Status {
+ OPEN
+ IN_PROGRESS
+ DONE
+ CANCELED
+}
+model User {
+ id String @id @default(uuid())
+ name String
+ email String @unique
+ passwordHash String
+ role Role
+ orders ServiceOrder[]
+}
+model Customer {
+ id String @id @default(uuid())
+ name String
+ email String?
+ phone String
+ zip String
+ address String
+ orders ServiceOrder[]
+ createdAt DateTime @default(now())
+}
+model ServiceOrder {
+ id String @id @default(uuid())
+ title String
+ description String @db.Text
+ status Status @default(OPEN)
+ version Int @default(1)
+ customerId String
+ customer Customer @relation(fields: [customerId], references: [id])
+ technicianId String?
+ technician User? @relation(fields: [technicianId], references: [id])
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@index([technicianId, status, createdAt])
+ @@index([status, createdAt])
+}
+model WebhookReceipt {
+ id String @id
+ receivedAt DateTime @default(now())
+}
+model Outbox {
+ id String @id @default(uuid())
+ payload String @db.Text
+ attempts Int @default(0)
+ deliveredAt DateTime?
+ nextAttemptAt DateTime @default(now())
+ createdAt DateTime @default(now())
+ @@index([deliveredAt, nextAttemptAt])
+}

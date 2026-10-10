@@ -1,0 +1,37 @@
+services:
+ db:
+  image: mysql:8.4
+  environment:
+   MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+   MYSQL_DATABASE: ${MYSQL_DATABASE}
+   MYSQL_USER: ${MYSQL_USER}
+   MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+  ports: ["127.0.0.1:3306:3306"]
+  volumes: ["mysql-data:/var/lib/mysql"]
+  healthcheck:
+   test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"]
+   interval: 5s
+   timeout: 5s
+   retries: 30
+ api:
+  build:
+   context: .
+   dockerfile: apps/api/Dockerfile
+  environment:
+   DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
+   JWT_SECRET: ${JWT_SECRET}
+   WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+   WEBHOOK_URL: http://api:3000/webhooks/status
+   CORS_ORIGIN: ${CORS_ORIGIN}
+  ports: ["3000:3000"]
+  depends_on:
+   db:
+    condition: service_healthy
+ web:
+  build:
+   context: .
+   dockerfile: apps/web/Dockerfile
+  ports: ["8080:80"]
+  depends_on: [api]
+volumes:
+ mysql-data:

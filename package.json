@@ -1,0 +1,17 @@
+{
+  "name": "servicos",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w api && npm run build -w web",
+    "test": "npm run test -w api",
+    "db:generate": "npm run db:generate -w api",
+    "db:migrate": "node --env-file-if-exists=.env node_modules/prisma/build/index.js migrate deploy --schema apps/api/prisma/schema.prisma",
+    "db:seed": "node --env-file-if-exists=.env --import tsx apps/api/prisma/seed.ts",
+    "dev:api": "npm run dev -w api",
+    "dev:web": "npm run dev -w web",
+    "dev:mobile": "npm run start -w mobile"
+  }
+}
